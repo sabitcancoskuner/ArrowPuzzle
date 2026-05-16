@@ -35,18 +35,18 @@ public class VisualManager : MonoBehaviour
         {
             case ArrowVisualType.Body:
                 return Instantiate(arrowBody, new Vector3(pos.x, pos.y), Quaternion.identity);
-            
+
             case ArrowVisualType.Head:
                 return Instantiate(arrowHead, new Vector3(pos.x, pos.y), Quaternion.identity);
-            
+
             case ArrowVisualType.Tail:
                 return Instantiate(arrowTail, new Vector3(pos.x, pos.y), Quaternion.identity);
 
             case ArrowVisualType.Cross:
                 return Instantiate(arrowCross, new Vector3(pos.x, pos.y), Quaternion.identity);
-            
+
             default:
-                return null;
+                 return null;
         }
     }
 
