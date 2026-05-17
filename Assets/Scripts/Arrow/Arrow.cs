@@ -21,7 +21,6 @@ public class Arrow : MonoBehaviour
     {
         currentHeadPos = arrowData.cells[arrowData.cells.Count - 1];
 
-        // 3. Spawn Middle Segments (Bodies and Elbows)
         for (int i = 0; i < arrowData.cells.Count - 1; i++)
         {
             if (i == 0)
@@ -51,7 +50,6 @@ public class Arrow : MonoBehaviour
             }
         }
 
-        // 4. Spawn Head
         headVisual = VisualManager.Instance.SpawnVisualPiece(ArrowVisualType.Head, currentHeadPos, transform);
         Vector2Int headDir = DirectionUtility.ToVector(arrowData.direction);
         headVisual.transform.up = new Vector3(headDir.x, headDir.y, 0);
@@ -68,7 +66,6 @@ public class Arrow : MonoBehaviour
     {
         if (remainingEscapeSteps <= 0)
         {
-            // It has flown far enough off-screen. Clean it up!
             Destroy(gameObject);
             return;
         }
@@ -78,17 +75,14 @@ public class Arrow : MonoBehaviour
         Vector2Int nextHeadPos = currentHeadPos + escapeDirection;
         Vector3 worldNextHead = new Vector3(nextHeadPos.x, nextHeadPos.y, 0);
 
-        // 1. Move the Head into the void
         Tween.Position(headVisual.transform, worldNextHead, stepDuration);
 
-        // 2. Spawn a new body segment behind the head
         GameObject newBody = VisualManager.Instance.SpawnVisualPiece(ArrowVisualType.Body, currentHeadPos, transform);
         newBody.transform.up = new Vector3(escapeDirection.x, escapeDirection.y, 0);
         bodySegments.Add(newBody); 
 
         currentHeadPos = nextHeadPos;
 
-        // 3. Shrink the back of the snake so the tail pulls forward
         if (bodySegments.Count > 0) ShrinkOldestSegment();
 
         Tween.Delay(stepDuration).OnComplete(() => AnimateStep());
@@ -108,7 +102,6 @@ public class Arrow : MonoBehaviour
             return;
         }
 
-        // It is a straight body. Shrink it by moving its base forward.
         bodySegments.RemoveAt(0);
         Vector3 targetWorld = oldest.transform.position + oldest.transform.up;
         Sequence.Create()

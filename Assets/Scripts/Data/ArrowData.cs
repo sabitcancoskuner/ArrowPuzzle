@@ -13,7 +13,6 @@ public enum ArrowDirection
 public class ArrowData
 {
     public int id;
-    // ordered cells from tail to head
-    public List<Vector2Int> cells;
+    public List<Vector2Int> cells; // ordered cells from tail to head
     public ArrowDirection direction;
 }

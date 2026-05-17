@@ -22,4 +22,18 @@ public static class DirectionUtility
                 return Vector2Int.zero;
         }
     }
+
+    public static ArrowDirection ToArrowDirection(Vector2Int direction)
+    {
+        if (direction == Vector2Int.up)
+            return ArrowDirection.Up;
+
+        else if (direction == Vector2Int.down)
+            return ArrowDirection.Down;
+
+        else if (direction == Vector2Int.left)
+            return ArrowDirection.Left;
+
+        return ArrowDirection.Right;
+    }
 }
