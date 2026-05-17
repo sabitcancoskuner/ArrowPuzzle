@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
@@ -7,7 +8,9 @@ public class BoardManager : MonoBehaviour
     // Board Settings
     private int boardWidth;
     private int boardHeight;
-    private BoardCellData[,] board;
+    private ArrowData[,] board;
+
+    private Dictionary<ArrowData, Arrow> arrowVisuals;
 
     [SerializeField] private LevelData testLevel;
 
@@ -20,6 +23,18 @@ public class BoardManager : MonoBehaviour
         }
 
         Instance = this;
+
+        arrowVisuals = new Dictionary<ArrowData, Arrow>();
+    }
+
+    private void OnEnable()
+    {
+        TouchManager.Instance.OnScreenTouched += TryMoveArrow;
+    }
+
+    private void OnDisable()
+    {
+        TouchManager.Instance.OnScreenTouched -= TryMoveArrow;
     }
 
     private void Start()
@@ -31,36 +46,79 @@ public class BoardManager : MonoBehaviour
     {
         boardWidth = testLevel.width;
         boardHeight = testLevel.height;
-        board = new BoardCellData[boardWidth, boardHeight];
+        board = new ArrowData[boardWidth, boardHeight];
         
-        foreach (ArrowData arrow in testLevel.arrows)
+        foreach (ArrowData data in testLevel.arrows)
         {
-            BoardCellData newBoardCell = new BoardCellData();
-            newBoardCell.arrow = arrow;
+            Vector2Int head = data.cells[data.cells.Count - 1];
+            GameObject newArrowVisual = VisualManager.Instance.SpawnArrowPrefab(head); 
 
-            for(int i = 0; i < arrow.cells.Count; i++)
+            for(int i = 0; i < data.cells.Count; i++)
             {
-                ArrowVisualType bodyType = GetArrowVisualType(arrow, i);
-                newBoardCell.visualPiece = VisualManager.Instance.SpawnVisualPiece(bodyType, arrow.cells[i]);
-
-                board[arrow.cells[i].x, arrow.cells[i].y] = newBoardCell;
+                board[data.cells[i].x, data.cells[i].y] = data;
             }
+
+            Arrow newArrowScript = newArrowVisual.GetComponent<Arrow>();
+            newArrowScript.BuildVisuals(data);
+
+            arrowVisuals.Add(data, newArrowScript);
         }
     }
 
-    private ArrowVisualType GetArrowVisualType(ArrowData arrow, int index)
+    private void TryMoveArrow(Vector2 screenPosition)
     {
-        if (index == 0) return ArrowVisualType.Tail;  
-        else if (index == arrow.cells.Count - 1) return ArrowVisualType.Head;
- 
-        Vector2Int previous = arrow.cells[index - 1];
-        Vector2Int current = arrow.cells[index];
-        Vector2Int next = arrow.cells[index + 1];
+        Vector2 worldPosition = CameraUtility.ScreenToWorld(screenPosition);
+        Vector2Int gridPosition = BoardUtility.ToIntVector(worldPosition);
 
-        Vector2Int incoming = current - previous;
-        Vector2Int outgoing = next - current;
+        if (IsCellEmpty(gridPosition)) return;
 
-        return incoming == outgoing ? ArrowVisualType.Body : ArrowVisualType.Cross;
+        ArrowData currentCell = board[gridPosition.x, gridPosition.y];
+        Vector2Int headPosition = GetHeadPosition(currentCell);
+        Vector2Int arrowDirection = GetArrowDirection(currentCell);
+
+        var (canMove, blockedPos) = MoveArrow(headPosition, arrowDirection);
+
+        if (canMove)
+        {
+            Debug.Log($"Arrow with id {currentCell.id} escaped");
+            arrowVisuals[currentCell].StartEscape(arrowDirection);
+            ClearArrowData(currentCell);
+        }
+        else
+        {
+            Debug.Log($"Arrow with id {currentCell.id} is blocked at position {blockedPos}");
+        }
+    }
+
+    private Vector2Int GetHeadPosition(ArrowData boardData)
+    {
+        Vector2Int head = boardData.cells[boardData.cells.Count - 1];
+        return head;
+    }
+
+    private Vector2Int GetArrowDirection(ArrowData boardData)
+    {
+        return DirectionUtility.ToVector(boardData.direction);
+    }
+
+    private (bool canMove, Vector2Int? blockedPosition) MoveArrow(Vector2Int head, Vector2Int direction)
+    {
+        Vector2Int checkPosition = head + direction;
+        while (IsInsideGrid(checkPosition))
+        {
+            if (!IsCellEmpty(checkPosition)) return (false, checkPosition);
+            checkPosition += direction;
+        }
+
+        return (true, null);
+    }
+
+    private void ClearArrowData(ArrowData boardData)
+    {
+        foreach (Vector2Int pos in boardData.cells)
+        {
+            board[pos.x, pos.y] = null;
+        }
     }
 
     private bool IsInsideGrid(int x, int y)
@@ -77,7 +135,7 @@ public class BoardManager : MonoBehaviour
     
     private bool IsCellEmpty(int x, int y)
     {
-        if (!IsInsideGrid(x, y)) return false;
+        if (!IsInsideGrid(x, y)) return true;
 
         return board[x, y] == null;
     }

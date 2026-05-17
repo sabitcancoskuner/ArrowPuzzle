@@ -38,7 +38,7 @@ public class TouchManager : MonoBehaviour
     private bool isZooming;
 
     // Event
-    public event Action OnScreenTouched;
+    public event Action<Vector2> OnScreenTouched;
     public event Action<float, Vector2> OnPinchZoom;
     public event Action<Vector2> OnScreenSwipe;
 
@@ -114,10 +114,7 @@ public class TouchManager : MonoBehaviour
 
         if (!isSwiping && touchDistance <= tapMaxPixelDistance)
         {
-            OnScreenTouched?.Invoke();
-
-            Vector3 position = Camera.main.ScreenToWorldPoint(touchEndPosition);
-            Debug.Log(position);
+            OnScreenTouched?.Invoke(touchEndPosition);
         }
     }
 

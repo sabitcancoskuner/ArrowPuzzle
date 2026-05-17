@@ -5,18 +5,19 @@ public enum ArrowVisualType
     Body,
     Head,
     Tail,
-    Cross
+    ElbowJoint
 }
 
 public class VisualManager : MonoBehaviour
 {
     public static VisualManager Instance;
 
-    [Header("Arrow Visual Pieces")]
+    [Header("Arrow Pieces")]
+    [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private GameObject arrowBody;
     [SerializeField] private GameObject arrowHead;
     [SerializeField] private GameObject arrowTail;
-    [SerializeField] private GameObject arrowCross;
+    [SerializeField] private GameObject arrowElbow;
 
     private void Awake()
     {
@@ -29,21 +30,35 @@ public class VisualManager : MonoBehaviour
         Instance = this;
     }
 
-    public GameObject SpawnVisualPiece(ArrowVisualType type, Vector2Int pos)
+    public GameObject SpawnArrowPrefab(Vector2Int pos)
     {
+        return Instantiate(arrowPrefab, new Vector3(pos.x, pos.y), Quaternion.identity);
+    }
+
+    public GameObject SpawnVisualPiece(ArrowVisualType type, Vector2Int pos, Transform parent)
+    {
+        GameObject newBodyPart;
         switch (type)
         {
             case ArrowVisualType.Body:
-                return Instantiate(arrowBody, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart = Instantiate(arrowBody, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart.transform.SetParent(parent);
+                return newBodyPart;
 
             case ArrowVisualType.Head:
-                return Instantiate(arrowHead, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart = Instantiate(arrowHead, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart.transform.SetParent(parent);
+                return newBodyPart;
 
             case ArrowVisualType.Tail:
-                return Instantiate(arrowTail, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart = Instantiate(arrowTail, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart.transform.SetParent(parent);
+                return newBodyPart;
 
-            case ArrowVisualType.Cross:
-                return Instantiate(arrowCross, new Vector3(pos.x, pos.y), Quaternion.identity);
+            case ArrowVisualType.ElbowJoint:
+                newBodyPart = Instantiate(arrowElbow, new Vector3(pos.x, pos.y), Quaternion.identity);
+                newBodyPart.transform.SetParent(parent);
+                return newBodyPart;
 
             default:
                  return null;

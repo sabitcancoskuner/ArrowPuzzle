@@ -415,8 +415,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396e4c248eb9d6747a0e2431739e0d26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TouchManager
-  maxSwipeWorldDelta: 0.5
   minSwipePixelDelta: 1
+  swipeStartPixelDistance: 20
+  pinchSwipeSensitivity: 1.5
+  tapMaxPixelDistance: 15
 --- !u!1 &834668984
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +512,7 @@ MonoBehaviour:
   minCameraSize: 4
   maxCameraSize: 12
   zoomDuration: 0.1
-  moveSpeed: 1
+  maxSwipeWorldDelta: 0.5
 --- !u!1 &1552050015
 GameObject:
   m_ObjectHideFlags: 0
@@ -540,10 +542,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a09a53ccd7baf40946bee14c59022d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VisualManager
+  arrowPrefab: {fileID: 8367849342574220041, guid: f135b5ddc3d3ec046b57d3c5583df2ac, type: 3}
   arrowBody: {fileID: 737030392665049720, guid: 9fbdf04f06ad3114682c73eb321d22ed, type: 3}
   arrowHead: {fileID: 875559106372935313, guid: 2174c7a9558afcf49a36a49cb91e75f4, type: 3}
   arrowTail: {fileID: 1472728544878801187, guid: 7db19806cc657094db7f232cc88744d5, type: 3}
-  arrowCross: {fileID: 5124353882423771949, guid: 8c9b678fb9dd7174d806521a5b1f1515, type: 3}
+  arrowElbow: {fileID: 5124353882423771949, guid: 8c9b678fb9dd7174d806521a5b1f1515, type: 3}
 --- !u!4 &1552050017
 Transform:
   m_ObjectHideFlags: 0
