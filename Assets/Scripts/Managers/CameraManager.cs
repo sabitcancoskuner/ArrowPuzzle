@@ -37,12 +37,16 @@ public class CameraManager : MonoBehaviour
     {
         TouchManager.Instance.OnPinchZoom += ApplyZoom;
         TouchManager.Instance.OnScreenSwipe += MoveCamera;
+
+        BoardManager.Instance.OnBoardCreated += FrameGrid;
     }
 
     private void OnDisable()
     {
         TouchManager.Instance.OnPinchZoom -= ApplyZoom;
         TouchManager.Instance.OnScreenSwipe -= MoveCamera;
+
+        BoardManager.Instance.OnBoardCreated -= FrameGrid;
     }
 
     private void ApplyZoom(float zoomAmount, Vector2 zoomCenterScreen)
@@ -94,5 +98,18 @@ public class CameraManager : MonoBehaviour
         targetPosition.y += offsetFromCenter.y * worldUnitsPerPixelDelta;
 
         return targetPosition;
+    }
+
+    public void FrameGrid(int gridWidth, int gridHeight)
+    {  
+        float padding = 1f;
+        float centerX = gridWidth / 2f - 0.5f;
+        float centerY = gridHeight / 2f;
+
+        mainCamera.transform.position = new Vector3(centerX, centerY, mainCamera.transform.position.z);
+
+        float requiredVerticalSize = (gridHeight / 2f) + padding;
+        float requiredHorizontalSize = ((gridWidth / 2f) + padding) / mainCamera.aspect;
+        mainCamera.orthographicSize = Mathf.Max(requiredVerticalSize, requiredHorizontalSize);
     }
 }

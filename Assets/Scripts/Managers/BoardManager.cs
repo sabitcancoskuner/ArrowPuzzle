@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,9 +11,11 @@ public class BoardManager : MonoBehaviour
     private int boardHeight;
     private ArrowData[,] board;
 
-    private Dictionary<ArrowData, Arrow> arrowVisuals;
+    private Dictionary<ArrowData, LineArrow> arrowVisuals;
 
     [SerializeField] private LevelData testLevel;
+
+    public event Action<int, int> OnBoardCreated;
 
     private void Awake()
     {
@@ -24,7 +27,7 @@ public class BoardManager : MonoBehaviour
 
         Instance = this;
 
-        arrowVisuals = new Dictionary<ArrowData, Arrow>();
+        arrowVisuals = new Dictionary<ArrowData, LineArrow>();
     }
 
     private void OnEnable()
@@ -58,11 +61,14 @@ public class BoardManager : MonoBehaviour
                 board[data.cells[i].x, data.cells[i].y] = data;
             }
 
-            Arrow newArrowScript = newArrowVisual.GetComponent<Arrow>();
+            LineArrow newArrowScript = newArrowVisual.GetComponent<LineArrow>();
+            VisualManager.Instance.SpawnDot(data);
             newArrowScript.BuildVisuals(data);
 
             arrowVisuals.Add(data, newArrowScript);
         }
+
+        OnBoardCreated?.Invoke(boardWidth, boardHeight);
     }
 
     private void TryMoveArrow(Vector2 screenPosition)
@@ -80,13 +86,12 @@ public class BoardManager : MonoBehaviour
 
         if (canMove)
         {
-            Debug.Log($"Arrow with id {currentCell.id} escaped");
-            arrowVisuals[currentCell].StartEscape(arrowDirection);
+            arrowVisuals[currentCell].Move(arrowDirection);
             ClearArrowData(currentCell);
         }
         else
         {
-            Debug.Log($"Arrow with id {currentCell.id} is blocked at position {blockedPos}");
+            arrowVisuals[currentCell].PlayBlockedMove(arrowDirection, blockedPos.Value);
         }
     }
 

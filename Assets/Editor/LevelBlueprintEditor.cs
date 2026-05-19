@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using log4net.Core;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,8 +18,9 @@ public class LevelBlueprintEditor : EditorWindow
     private enum PaintMode { PaintArrow, EraseArrow }
     private PaintMode paintMode;
 
-    // Board Constants
-    private const float CELL = 50f;
+    // Editor Layout
+    private const float SettingsPanelWidth = 260f;
+    private const float MinGridAreaSize = 1f;
 
     // Textures
     private Texture2D headTexture;
@@ -28,6 +31,9 @@ public class LevelBlueprintEditor : EditorWindow
     private Vector2Int lastPaintedCell = new Vector2Int(-1, -1);
     private List<Vector2Int> currentDrawingPath = new List<Vector2Int>();
     private bool isDrawing = false;
+
+    // Level Generation
+    private LevelGenerator levelGenerator;
 
     private void OnEnable()
     {
@@ -50,13 +56,24 @@ public class LevelBlueprintEditor : EditorWindow
     private void OnGUI()
     {
         GUILayout.Space(5);
+        GUILayout.BeginHorizontal();
+        GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+
         DrawAssetPanel();
+        GUILayout.Space(10);
+        DrawGrid();
+
+        GUILayout.EndVertical();
+
+        GUILayout.BeginVertical(GUILayout.Width(SettingsPanelWidth));
+
         GUILayout.Space(10);
         DrawSettingsPanel();
         GUILayout.Space(10);
         DrawPaintToolbar();
-        GUILayout.Space(10);
-        DrawGrid();
+
+        GUILayout.EndVertical();
+        GUILayout.EndHorizontal();
     }
 
     private void DrawAssetPanel()
@@ -165,6 +182,8 @@ public class LevelBlueprintEditor : EditorWindow
 
     private void DrawSettingsPanel()
     {
+        GUILayout.BeginVertical();
+
         EditorGUILayout.LabelField("Board Settings", EditorStyles.whiteBoldLabel);
         GUILayout.Space(3);
 
@@ -181,11 +200,19 @@ public class LevelBlueprintEditor : EditorWindow
             difficulty = newDifficulty;
             arrows = new List<ArrowData>();
         }
+        GUIContent creatButtonContent = new GUIContent("Create Level", "Create new level with selected settings.");
+        if (GUILayout.Button(creatButtonContent))
+        {
+            LevelGenerator levelGenerator = new LevelGenerator(boardWidth, boardHeight, difficulty);
+            arrows = levelGenerator.Generate();
+        }
 
         if (GUILayout.Button("Reset Grid"))
         {
             arrows = new List<ArrowData>();
         }
+
+        GUILayout.EndVertical();
     }
 
     private void DrawPaintToolbar()
@@ -211,14 +238,35 @@ public class LevelBlueprintEditor : EditorWindow
 
     private void DrawGrid()
     {
-        float totalWidth = boardWidth * CELL;
-        float totalHeight = boardHeight * CELL;
-        
-        GUILayout.BeginHorizontal();
-        GUILayout.FlexibleSpace();
-        
-        Rect gridRect = GUILayoutUtility.GetRect(totalWidth, totalHeight);
-        
+        Rect availableRect = GUILayoutUtility.GetRect(
+            MinGridAreaSize,
+            position.width,
+            MinGridAreaSize,
+            position.height,
+            GUILayout.ExpandWidth(true),
+            GUILayout.ExpandHeight(true));
+
+        if (boardWidth <= 0 || boardHeight <= 0)
+        {
+            return;
+        }
+
+        float cellSize = Mathf.Min(availableRect.width / boardWidth, availableRect.height / boardHeight);
+
+        if (cellSize <= 0f)
+        {
+            return;
+        }
+
+        float gridWidth = boardWidth * cellSize;
+        float gridHeight = boardHeight * cellSize;
+
+        Rect gridRect = new Rect(
+            availableRect.x + ((availableRect.width - gridWidth) * 0.5f),
+            availableRect.y + ((availableRect.height - gridHeight) * 0.5f),
+            gridWidth,
+            gridHeight);
+
         EditorGUI.DrawRect(gridRect, Color.gray1);
 
         for (int y = 0; y < boardHeight; y++)
@@ -226,24 +274,26 @@ public class LevelBlueprintEditor : EditorWindow
             for (int x = 0; x < boardWidth; x++)
             {
                 Rect cellRect = new Rect(
-                    gridRect.x + (x * CELL), 
-                    gridRect.y + ((boardHeight - 1 - y) * CELL), 
-                    CELL, 
-                    CELL
+                    gridRect.x + (x * cellSize),
+                    gridRect.y + ((boardHeight - 1 - y) * cellSize),
+                    cellSize,
+                    cellSize
                 );
 
                 EditorGUI.DrawRect(cellRect, Color.black);
-                
-                Rect innerRect = new Rect(cellRect.x + 1, cellRect.y + 1, CELL - 2, CELL - 2);
+
+                float padding = Mathf.Min(1f, cellSize * 0.1f);
+                Rect innerRect = new Rect(
+                    cellRect.x + padding,
+                    cellRect.y + padding,
+                    Mathf.Max(0f, cellSize - (padding * 2f)),
+                    Mathf.Max(0f, cellSize - (padding * 2f)));
                 
                 DrawCellContent(new Vector2Int(x, y), innerRect);
             }
         }
 
-        GUILayout.FlexibleSpace();
-        GUILayout.EndHorizontal();
-
-        ProcessMouseEvents(gridRect);
+        ProcessMouseEvents(gridRect, cellSize);
     }
 
     private void DrawCellContent(Vector2Int position, Rect rect)
@@ -340,16 +390,28 @@ public class LevelBlueprintEditor : EditorWindow
         return 0f;
     }
 
-    private void ProcessMouseEvents(Rect gridRect)
+    private void ProcessMouseEvents(Rect gridRect, float cellSize)
     {
+        if (cellSize <= 0f)
+        {
+            return;
+        }
+
         Event e = Event.current;
 
         if (gridRect.Contains(e.mousePosition))
         {
             if (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
             {
-                int x = Mathf.FloorToInt((e.mousePosition.x - gridRect.x) / CELL);
-                int y = boardHeight - 1 - Mathf.FloorToInt((e.mousePosition.y - gridRect.y) / CELL);
+                int x = Mathf.FloorToInt((e.mousePosition.x - gridRect.x) / cellSize);
+                int y = boardHeight - 1 - Mathf.FloorToInt((e.mousePosition.y - gridRect.y) / cellSize);
+
+                if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight)
+                {
+                    e.Use();
+                    return;
+                }
+
                 Vector2Int currentCell = new Vector2Int(x, y);
 
                 if (e.type == EventType.MouseDown && e.button == 0)

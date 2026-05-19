@@ -15,5 +15,5 @@ public class LevelData : ScriptableObject
     public int width;
     public int height;
     public LevelDifficulty difficulty;
-    public List<ArrowData> arrows;
+    public List<ArrowData> arrows = new List<ArrowData>();
 }
