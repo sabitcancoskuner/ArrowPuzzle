@@ -11,7 +11,9 @@ The project focuses on **clean runtime architecture, mobile-ready input, custom 
 - If another arrow blocks the path, the move is rejected with visual feedback.
 - A level is complete when every arrow has escaped the board.
 
-![Gameplay](Assets/GIFs/gameplay.gif)
+<p align="center">
+  <img src="/Assets/GIFs/gameplay.gif" alt="Description" style="width:50%; height:auto;">
+</p>
 
 ## 🕹️ Controls
 
