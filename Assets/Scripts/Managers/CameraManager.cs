@@ -8,7 +8,7 @@ public class CameraManager : MonoBehaviour
     [Header("Zoom Settings")]
     [SerializeField] private float zoomSpeed = 0.01f;
     [SerializeField] private float minCameraSize = 4f;
-    [SerializeField] private float maxCameraSize = 12f;
+    [SerializeField] private float maxCameraSize = 20f;
     [SerializeField] private float zoomDuration = 0.1f;
 
     [Header("Movement Settings")]
@@ -110,6 +110,8 @@ public class CameraManager : MonoBehaviour
 
         float requiredVerticalSize = (gridHeight / 2f) + padding;
         float requiredHorizontalSize = ((gridWidth / 2f) + padding) / mainCamera.aspect;
-        mainCamera.orthographicSize = Mathf.Max(requiredVerticalSize, requiredHorizontalSize);
+        float maxSize = Mathf.Max(requiredVerticalSize, requiredHorizontalSize);
+        maxCameraSize = maxSize;
+        mainCamera.orthographicSize = maxSize;
     }
 }

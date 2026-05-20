@@ -26,6 +26,7 @@ public class LevelBlueprintEditor : EditorWindow
     private Texture2D headTexture;
     private Texture2D bodyTexture;
     private Texture2D elbowTexture;
+    private Texture2D tailTexture;
     
     private int arrowId = 1;
     private Vector2Int lastPaintedCell = new Vector2Int(-1, -1);
@@ -40,6 +41,7 @@ public class LevelBlueprintEditor : EditorWindow
         headTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sprites/Editor/editor_arrow_head.png");
         bodyTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sprites/Editor/editor_arrow_body.png");
         elbowTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sprites/Editor/editor_arrow_elbow.png");
+        tailTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sprites/Editor/editor_arrow_tail.png");
 
         if (headTexture == null || bodyTexture == null || elbowTexture == null)
         {
@@ -329,7 +331,7 @@ public class LevelBlueprintEditor : EditorWindow
         // Tail
         if (index == 0) 
         {
-            textureToDraw = bodyTexture;
+            textureToDraw = tailTexture;
             if (path.Count > 1) angle = GetAngle(path[0], path[1]);
         }
         // Head

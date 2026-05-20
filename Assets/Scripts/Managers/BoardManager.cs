@@ -12,10 +12,12 @@ public class BoardManager : MonoBehaviour
     private ArrowData[,] board;
 
     private Dictionary<ArrowData, LineArrow> arrowVisuals;
+    private List<ArrowData> wrongMovedArrows = new List<ArrowData>();
 
-    [SerializeField] private LevelData testLevel;
+    public event Action OnWrongMove;
 
     public event Action<int, int> OnBoardCreated;
+    public event Action<bool> OnShowGuideLine;
 
     private void Awake()
     {
@@ -33,25 +35,22 @@ public class BoardManager : MonoBehaviour
     private void OnEnable()
     {
         TouchManager.Instance.OnScreenTouched += TryMoveArrow;
+        LevelManager.Instance.OnLevelLoaded += InitializeBoard;
     }
 
     private void OnDisable()
     {
         TouchManager.Instance.OnScreenTouched -= TryMoveArrow;
+        LevelManager.Instance.OnLevelLoaded -= InitializeBoard;
     }
 
-    private void Start()
+    private void InitializeBoard(LevelData level)
     {
-        InitializeBoard();
-    }
-
-    private void InitializeBoard()
-    {
-        boardWidth = testLevel.width;
-        boardHeight = testLevel.height;
+        boardWidth = level.width;
+        boardHeight = level.height;
         board = new ArrowData[boardWidth, boardHeight];
         
-        foreach (ArrowData data in testLevel.arrows)
+        foreach (ArrowData data in level.arrows)
         {
             Vector2Int head = data.cells[data.cells.Count - 1];
             GameObject newArrowVisual = VisualManager.Instance.SpawnArrowPrefab(head); 
@@ -78,20 +77,27 @@ public class BoardManager : MonoBehaviour
 
         if (IsCellEmpty(gridPosition)) return;
 
-        ArrowData currentCell = board[gridPosition.x, gridPosition.y];
-        Vector2Int headPosition = GetHeadPosition(currentCell);
-        Vector2Int arrowDirection = GetArrowDirection(currentCell);
+        ArrowData currentArrow = board[gridPosition.x, gridPosition.y];
+        Vector2Int headPosition = GetHeadPosition(currentArrow);
+        Vector2Int arrowDirection = GetArrowDirection(currentArrow);
 
         var (canMove, blockedPos) = MoveArrow(headPosition, arrowDirection);
 
         if (canMove)
         {
-            arrowVisuals[currentCell].Move(arrowDirection);
-            ClearArrowData(currentCell);
+            ShowGuideLines(false);
+            arrowVisuals[currentArrow].Move(arrowDirection);
+            ClearArrowData(currentArrow);
         }
         else
         {
-            arrowVisuals[currentCell].PlayBlockedMove(arrowDirection, blockedPos.Value);
+            arrowVisuals[currentArrow].PlayBlockedMove(arrowDirection, blockedPos.Value);
+            arrowVisuals[board[blockedPos.Value.x, blockedPos.Value.y]].Blink();
+
+            if (wrongMovedArrows.Contains(currentArrow)) return;
+
+            wrongMovedArrows.Add(currentArrow);
+            OnWrongMove?.Invoke();
         }
     }
 
@@ -118,12 +124,24 @@ public class BoardManager : MonoBehaviour
         return (true, null);
     }
 
-    private void ClearArrowData(ArrowData boardData)
+    public void ShowGuideLines(bool show)
     {
-        foreach (Vector2Int pos in boardData.cells)
+        foreach(LineArrow arrow in arrowVisuals.Values)
+        {
+            arrow.ShowGuideLine(show);
+        }
+
+        OnShowGuideLine?.Invoke(show);
+    }
+
+    private void ClearArrowData(ArrowData arrowData)
+    {
+        foreach (Vector2Int pos in arrowData.cells)
         {
             board[pos.x, pos.y] = null;
         }
+
+        arrowVisuals.Remove(arrowData);
     }
 
     private bool IsInsideGrid(int x, int y)
