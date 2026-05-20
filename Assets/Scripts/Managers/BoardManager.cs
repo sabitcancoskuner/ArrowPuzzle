@@ -17,6 +17,7 @@ public class BoardManager : MonoBehaviour
     public event Action OnWrongMove;
 
     public event Action<int, int> OnBoardCreated;
+    public event Action OnBoardCleared;
     public event Action<bool> OnShowGuideLine;
 
     private void Awake()
@@ -63,6 +64,7 @@ public class BoardManager : MonoBehaviour
             LineArrow newArrowScript = newArrowVisual.GetComponent<LineArrow>();
             VisualManager.Instance.SpawnDot(data);
             newArrowScript.BuildVisuals(data);
+            newArrowScript.OnEscapeSuccesful += CheckWinSituation;
 
             arrowVisuals.Add(data, newArrowScript);
         }
@@ -85,7 +87,7 @@ public class BoardManager : MonoBehaviour
 
         if (canMove)
         {
-            ShowGuideLines(false);
+            ToggleGuideLines(false);
             arrowVisuals[currentArrow].Move(arrowDirection);
             ClearArrowData(currentArrow);
         }
@@ -124,14 +126,14 @@ public class BoardManager : MonoBehaviour
         return (true, null);
     }
 
-    public void ShowGuideLines(bool show)
+    public void ToggleGuideLines(bool toggle)
     {
         foreach(LineArrow arrow in arrowVisuals.Values)
         {
-            arrow.ShowGuideLine(show);
+            arrow.ToggleGuideline(toggle);
         }
 
-        OnShowGuideLine?.Invoke(show);
+        OnShowGuideLine?.Invoke(toggle);
     }
 
     private void ClearArrowData(ArrowData arrowData)
@@ -166,5 +168,14 @@ public class BoardManager : MonoBehaviour
     private bool IsCellEmpty(Vector2Int pos)
     {
         return IsCellEmpty(pos.x, pos.y);
+    }
+
+    private void CheckWinSituation()
+    {
+        // if there are no arrow visuals left, level is cleared
+        if (arrowVisuals.Count == 0)
+        {
+            OnBoardCleared?.Invoke();
+        }
     }
 }

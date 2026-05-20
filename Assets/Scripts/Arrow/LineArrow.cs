@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PrimeTween;
@@ -34,6 +35,9 @@ public class LineArrow : MonoBehaviour
     private Tween moveTween;
     private Sequence blockedSequence;
     private Sequence blinkSequence;
+
+    // actions
+    public event Action OnEscapeSuccesful;
 
     private void Awake()
     {
@@ -94,12 +98,16 @@ public class LineArrow : MonoBehaviour
                 linePoints = SampleTrack(track, currentHeadDistance, arrowLength);
                 ApplyPositionsToLineRenderer();
                 headTransform.position = linePoints.Last();
+
+                if (IsTailOffScreen())
+                {
+                    moveTween.Stop();
+                    OnEscapeSuccesful?.Invoke();
+                    Destroy(gameObject);
+                }
             },
             Ease.Linear
-        ).OnComplete(this, target =>
-        {
-            Destroy(target.gameObject);
-        });
+        );
     }
 
     public void PlayBlockedMove(Vector2Int direction, Vector2Int blockedPosition)
@@ -266,6 +274,11 @@ public class LineArrow : MonoBehaviour
         return sampledPoints;
     }
 
+    private bool IsTailOffScreen()
+    {
+        return linePoints.Count == 0 || CameraUtility.IsPointOffScreen(linePoints[0]);
+    }
+
     private void ApplyPositionsToLineRenderer()
     {
         lineRenderer.positionCount = linePoints.Count;
@@ -280,9 +293,9 @@ public class LineArrow : MonoBehaviour
         headRenderer.color = newColor;
     }
 
-    public void ShowGuideLine(bool show)
+    public void ToggleGuideline(bool toggle)
     {
-        guideLine.gameObject.SetActive(show);
+        guideLine.gameObject.SetActive(toggle);
     }
 
     private Vector3 GetHeadRotation(ArrowDirection direction)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,11 +22,18 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private GameObject openGuideLineButton;
     [SerializeField] private GameObject closeGuideLineButton;
 
+    [Header("Vignette Flash")]
+    [SerializeField] private Image flashImage;
+    [SerializeField] private int targetAlpha = 80;
+    [SerializeField] private float flashDuration = 0.08f;
+    private Sequence flashSeq;
+
     private void OnEnable()
     {
         LevelManager.Instance.OnLevelLoaded += SetDifficultyText;
 
         BoardManager.Instance.OnWrongMove += DecreaseHeart;
+        BoardManager.Instance.OnWrongMove += Flash;
         BoardManager.Instance.OnShowGuideLine += SetGuidelineButtonsStatus;
     }
 
@@ -34,6 +42,7 @@ public class InGameUI : MonoBehaviour
         LevelManager.Instance.OnLevelLoaded -= SetDifficultyText;
 
         BoardManager.Instance.OnWrongMove -= DecreaseHeart;
+        BoardManager.Instance.OnWrongMove -= Flash;
         BoardManager.Instance.OnShowGuideLine -= SetGuidelineButtonsStatus;
     }
 
@@ -78,6 +87,23 @@ public class InGameUI : MonoBehaviour
             default:
                 return Color.white;
         }
+    }
+
+    private void Flash()
+    {
+        if (flashSeq.isAlive)
+            flashSeq.Stop();
+
+        flashImage.gameObject.SetActive(true);
+
+        float target = targetAlpha / 255f;
+        flashSeq = Sequence.Create()
+            .Group(Tween.Alpha(flashImage, target, flashDuration, Ease.InQuad))
+            .Chain(Tween.Alpha(flashImage, 0, flashDuration, Ease.InQuad))
+            .OnComplete(() =>
+            {
+               flashImage.gameObject.SetActive(false); 
+            });
     }
 
     private void DecreaseHeart()
