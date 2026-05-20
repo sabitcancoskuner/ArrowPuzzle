@@ -19,6 +19,7 @@ public class LineArrow : MonoBehaviour
     [Header("Color Settings")]
     [SerializeField] private Color moveColor;
     [SerializeField] private Color blockColor;
+    [SerializeField] private Color guideLineBlockColor;
     private Color arrowBaseColor;
 
     private LineRenderer lineRenderer;
@@ -118,6 +119,7 @@ public class LineArrow : MonoBehaviour
         Vector3 blockedWorldPosition = new Vector3(blockedPosition.x, blockedPosition.y, 0f);
 
         ChangeArrowColor(blockColor);
+        ChangeGuideLineColor();
 
         float arrowLength = GetArrowLength();
 
@@ -291,6 +293,12 @@ public class LineArrow : MonoBehaviour
         lineRenderer.startColor = newColor;
         lineRenderer.endColor = newColor;
         headRenderer.color = newColor;
+    }
+
+    private void ChangeGuideLineColor()
+    {
+        guideLine.startColor = guideLineBlockColor;
+        guideLine.endColor = guideLineBlockColor;
     }
 
     public void ToggleGuideline(bool toggle)

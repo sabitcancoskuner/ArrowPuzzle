@@ -36,6 +36,7 @@ public class TouchManager : MonoBehaviour
     private Vector2 touchStartPosition;
     private bool isSwiping;
     private bool isZooming;
+    private bool gameEnded = false;
 
     // Event
     public event Action<Vector2> OnScreenTouched;
@@ -63,6 +64,11 @@ public class TouchManager : MonoBehaviour
 
         primarySwipeContactAction = playerInput.actions["PrimarySwipeContact"];
         primarySwipePositionAction = playerInput.actions["PrimarySwipePosition"];
+    }
+
+    private void Start()
+    {
+        GameManager.Instance.OnGameLose += StopInput;
     }
 
     private void OnEnable()
@@ -99,7 +105,10 @@ public class TouchManager : MonoBehaviour
             StopCoroutine(swipeCoroutine);
             swipeCoroutine = null;
         }
+
+        GameManager.Instance.OnGameLose -= StopInput;
     }
+
 
     private void TouchStarted(InputAction.CallbackContext ctx)
     {
@@ -112,7 +121,7 @@ public class TouchManager : MonoBehaviour
         Vector2 touchEndPosition = touchPositionAction.ReadValue<Vector2>();
         float touchDistance = Vector2.Distance(touchStartPosition, touchEndPosition);
 
-        if (!isSwiping && touchDistance <= tapMaxPixelDistance)
+        if (!isSwiping && touchDistance <= tapMaxPixelDistance && !gameEnded)
         {
             OnScreenTouched?.Invoke(touchEndPosition);
         }
@@ -120,6 +129,8 @@ public class TouchManager : MonoBehaviour
 
     private void ZoomStart(InputAction.CallbackContext ctx)
     {
+        if (gameEnded) return;
+
         isZooming = true;
         isSwiping = true;
         zoomCoroutine = StartCoroutine(ZoomDetection());
@@ -173,6 +184,8 @@ public class TouchManager : MonoBehaviour
 
     private void StartTouchPrimary(InputAction.CallbackContext ctx)
     {
+        if (gameEnded) return;
+
         if (swipeCoroutine != null)
         {
             StopCoroutine(swipeCoroutine);
@@ -223,5 +236,10 @@ public class TouchManager : MonoBehaviour
             previousPosition = currentPosition;
             yield return null;
         }
+    }
+
+    private void StopInput()
+    {
+        gameEnded = true;
     }
 }

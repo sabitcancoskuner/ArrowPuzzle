@@ -28,6 +28,10 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private float flashDuration = 0.08f;
     private Sequence flashSeq;
 
+    [Header("Win and Lose Panel")]
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject losePanel;
+
     private void OnEnable()
     {
         LevelManager.Instance.OnLevelLoaded += SetDifficultyText;
@@ -35,6 +39,9 @@ public class InGameUI : MonoBehaviour
         BoardManager.Instance.OnWrongMove += DecreaseHeart;
         BoardManager.Instance.OnWrongMove += Flash;
         BoardManager.Instance.OnShowGuideLine += SetGuidelineButtonsStatus;
+        BoardManager.Instance.OnBoardCleared += OpenWinPanel;
+
+        GameManager.Instance.OnGameLose += OpenLosePanel;
     }
 
     private void OnDisable()
@@ -44,6 +51,9 @@ public class InGameUI : MonoBehaviour
         BoardManager.Instance.OnWrongMove -= DecreaseHeart;
         BoardManager.Instance.OnWrongMove -= Flash;
         BoardManager.Instance.OnShowGuideLine -= SetGuidelineButtonsStatus;
+        BoardManager.Instance.OnBoardCleared -= OpenWinPanel;
+
+        GameManager.Instance.OnGameLose -= OpenLosePanel;
     }
 
     private void SetDifficultyText(LevelData data)
@@ -111,5 +121,15 @@ public class InGameUI : MonoBehaviour
         Image heart = hearts.Last();
         heart.gameObject.SetActive(false);
         hearts.Remove(heart);
+    }
+
+    private void OpenWinPanel()
+    {
+        winPanel.gameObject.SetActive(true);
+    }
+
+    private void OpenLosePanel()
+    {
+        losePanel.gameObject.SetActive(true);
     }
 }

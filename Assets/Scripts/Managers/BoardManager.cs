@@ -74,7 +74,8 @@ public class BoardManager : MonoBehaviour
 
     private void TryMoveArrow(Vector2 screenPosition)
     {
-        Vector2 worldPosition = CameraUtility.ScreenToWorld(screenPosition);
+        if (!CameraUtility.TryScreenToWorld(screenPosition, out Vector2 worldPosition)) return;
+
         Vector2Int gridPosition = BoardUtility.ToIntVector(worldPosition);
 
         if (IsCellEmpty(gridPosition)) return;

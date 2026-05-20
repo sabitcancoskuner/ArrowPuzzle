@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
     [Header("All Levels")]
     [SerializeField] private List<LevelData> levels;
 
-    private static int levelIndex = 0;
+    private static int levelIndex;
 
     public event Action<LevelData> OnLevelLoaded;
 
@@ -23,9 +23,6 @@ public class LevelManager : MonoBehaviour
         }
 
         Instance = this;
-
-        // remove this later
-        Application.targetFrameRate = 120;
     }
 
     private void Start()

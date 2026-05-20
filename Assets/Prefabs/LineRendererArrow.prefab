@@ -55,6 +55,7 @@ MonoBehaviour:
   blinkInterval: 0.2
   moveColor: {r: 0.6784314, g: 0.93725497, b: 0.8196079, a: 1}
   blockColor: {r: 0.7803922, g: 0.1764706, b: 0.10588236, a: 1}
+  guideLineBlockColor: {r: 0.6117647, g: 0.27058825, b: 0.3647059, a: 1}
 --- !u!120 &1786635287607075643
 LineRenderer:
   serializedVersion: 3
@@ -155,8 +156,8 @@ LineRenderer:
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 4
-    numCapVertices: 4
+    numCornerVertices: 12
+    numCapVertices: 12
     alignment: 1
     textureMode: 0
     textureScale: {x: 1, y: 1}
@@ -339,7 +340,7 @@ LineRenderer:
   m_MaskInteraction: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 5, z: 0}
+  - {x: 0, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -360,8 +361,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
-      key1: {r: 0.44705886, g: 0.44705886, b: 0.44705886, a: 1}
+      key0: {r: 0.21960786, g: 0.2509804, b: 0.37254903, a: 1}
+      key1: {r: 0.21960786, g: 0.2509804, b: 0.37254903, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
