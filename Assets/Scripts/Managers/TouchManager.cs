@@ -37,6 +37,8 @@ public class TouchManager : MonoBehaviour
     private bool isSwiping;
     private bool isZooming;
     private bool gameEnded = false;
+    private bool inputActionsInitialized;
+    private bool subscribedToHealthZeroed;
 
     // Event
     public event Action<Vector2> OnScreenTouched;
@@ -64,15 +66,23 @@ public class TouchManager : MonoBehaviour
 
         primarySwipeContactAction = playerInput.actions["PrimarySwipeContact"];
         primarySwipePositionAction = playerInput.actions["PrimarySwipePosition"];
+
+        inputActionsInitialized = true;
+        DontDestroyOnLoad(this);
     }
 
     private void Start()
     {
-        GameManager.Instance.OnGameLose += StopInput;
+        if (CurrencyManager.Instance == null) return;
+
+        CurrencyManager.Instance.OnHealthZeroed += StopInput;
+        subscribedToHealthZeroed = true;
     }
 
     private void OnEnable()
     {
+        if (!inputActionsInitialized) return;
+
         touchPressAction.started += TouchStarted;
         touchPressAction.canceled += TouchReleased;
 
@@ -85,14 +95,17 @@ public class TouchManager : MonoBehaviour
 
     private void OnDisable()
     {
-        touchPressAction.started -= TouchStarted;
-        touchPressAction.canceled -= TouchReleased;
+        if (inputActionsInitialized)
+        {
+            touchPressAction.started -= TouchStarted;
+            touchPressAction.canceled -= TouchReleased;
 
-        secondaryTouchContactAction.started -= ZoomStart;
-        secondaryTouchContactAction.canceled -= ZoomEnd;
+            secondaryTouchContactAction.started -= ZoomStart;
+            secondaryTouchContactAction.canceled -= ZoomEnd;
 
-        primarySwipeContactAction.started -= StartTouchPrimary;
-        primarySwipeContactAction.canceled -= EndTouchPrimary;
+            primarySwipeContactAction.started -= StartTouchPrimary;
+            primarySwipeContactAction.canceled -= EndTouchPrimary;
+        }
 
         if (zoomCoroutine != null)
         {
@@ -106,7 +119,11 @@ public class TouchManager : MonoBehaviour
             swipeCoroutine = null;
         }
 
-        GameManager.Instance.OnGameLose -= StopInput;
+        if (subscribedToHealthZeroed && CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.OnHealthZeroed -= StopInput;
+            subscribedToHealthZeroed = false;
+        }
     }
 
 

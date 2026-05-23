@@ -41,7 +41,7 @@ public class InGameUI : MonoBehaviour
         BoardManager.Instance.OnShowGuideLine += SetGuidelineButtonsStatus;
         BoardManager.Instance.OnBoardCleared += OpenWinPanel;
 
-        GameManager.Instance.OnGameLose += OpenLosePanel;
+        CurrencyManager.Instance.OnHealthZeroed += OpenLosePanel;
     }
 
     private void OnDisable()
@@ -53,7 +53,7 @@ public class InGameUI : MonoBehaviour
         BoardManager.Instance.OnShowGuideLine -= SetGuidelineButtonsStatus;
         BoardManager.Instance.OnBoardCleared -= OpenWinPanel;
 
-        GameManager.Instance.OnGameLose -= OpenLosePanel;
+        CurrencyManager.Instance.OnHealthZeroed -= OpenLosePanel;
     }
 
     private void SetDifficultyText(LevelData data)

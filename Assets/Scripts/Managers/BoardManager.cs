@@ -176,6 +176,7 @@ public class BoardManager : MonoBehaviour
         // if there are no arrow visuals left, level is cleared
         if (arrowVisuals.Count == 0)
         {
+            SaveManager.Instance.SetCurrentLevel(LevelManager.Instance.GetCurrentLevelIndex() + 2);
             OnBoardCleared?.Invoke();
         }
     }

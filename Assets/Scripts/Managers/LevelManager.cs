@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
     [Header("All Levels")]
     [SerializeField] private List<LevelData> levels;
 
-    private static int levelIndex;
+    private static int levelIndex = 0;
 
     public event Action<LevelData> OnLevelLoaded;
 
@@ -27,17 +27,23 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        LoadLevel();
+        LoadCurrentLevel();
     }
 
-    private void LoadLevel()
+    private void LoadCurrentLevel()
     {
+        SetLevelIndex(SaveManager.Instance.GetCurrentLevelIndex() - 1);
         OnLevelLoaded?.Invoke(levels[levelIndex]);
     }
 
     public void SetLevelIndex(int index)
     {
         levelIndex = index;
+    }
+
+    public int GetCurrentLevelIndex()
+    {
+        return levelIndex;
     }
 
 }
