@@ -945,7 +945,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 714779855}
         m_TargetAssemblyTypeName: BoardManager, Assembly-CSharp
         m_MethodName: ToggleGuideLines
         m_Mode: 6
@@ -1783,6 +1783,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5d9f80fe2d03d694b90d9ece133c2f35, type: 3}
+--- !u!114 &714779855 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7710593702955499925, guid: 5d9f80fe2d03d694b90d9ece133c2f35, type: 3}
+  m_PrefabInstance: {fileID: 714779854}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c14d4c63e6bd4246b2814edb1f1b89b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardManager
 --- !u!1 &826085514
 GameObject:
   m_ObjectHideFlags: 0
@@ -2924,7 +2935,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 714779855}
         m_TargetAssemblyTypeName: BoardManager, Assembly-CSharp
         m_MethodName: ToggleGuideLines
         m_Mode: 6
@@ -3149,7 +3160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.7726, y: 7.7885}
+  m_AnchoredPosition: {x: 1.7725983, y: 7.788498}
   m_SizeDelta: {x: 235.5292, y: -6.9803}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1449413055
